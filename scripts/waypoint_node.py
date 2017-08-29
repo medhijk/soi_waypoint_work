@@ -2,6 +2,7 @@
 import rospy
 import sys
 from std_msgs.msg import String
+from mavros_msgs.msg import WaypointList
 
 #def callback(data):
 #    rospy.loginfo(rospy.get_caller_id() + "heard %s", data.data)
@@ -12,7 +13,7 @@ import threading
 This is the automated version of running the following commands at the command line
 and/or inside the MAVLink autopilot terminal, with MAVLink + roscore + mavros already running:
 
-<PUT IN COMMANDS FOR STARTING THIS HERE> # include links to help docs / tutorials / wiki instructions also!!
+Installation instructions to set up mavros running with ardupilot can be found on this link: https://github.com/AS4SR/general_info/wiki/ArduPilot:-Instructions-to-set-up-and-run-an-autopilot-using-SITL-and-Gazebo-simulator
 
 MAVLink autopilot (normal operations):
 > mode AUTO
@@ -22,47 +23,35 @@ MAVLink autopilot (normal operations):
 Example waypoint files are listed under: ~/ardupilot/Tools/autotest/ArudPlane-Missions/
 --> the ones we normally use are formatted like "CMAC-toff-loop.txt"
 --> these are in lat-long-alt coordinates (with some additional information)
---> common writeout is as follows:
-    # as [long,lat,alt]: (with set orientation)
-    waypts = [[-35.362938, 149.165085, 584.409973], [-35.361164, 149.163986, 28.110001], [-35.359467, 149.161697, 99.800003]]
-    opened_file.open(filename, 'w')
-    opened_file.write("QGC WPL 110")
-    firstwaypt = 0; counter = 0
-    for pt in waypts:
-        [longitude,latitude,altitude] = pt
-        if firstwaypt == 0:                       # with constant unchanging orientation
-            opened_file.write("%d    1   0   22  15.000000   0.000000    0.000000    0.000000    %d  %d  %d  1\n" % (counter, longitude, latitude, altitude))
-            firstwaypt = 1
-        else:                                # with constant unchanging orientation
-            opened_file.write("%d    0   3   22  15.000000   0.000000    0.000000    0.000000    %d  %d  %d  1\n" % (counter, longitude, latitude, altitude))
-        counter += 1
-    opened_file.close()
+    
+    WaypointList = [{frame: 3, command: 16, is_current: 0, autocontinue: 1,param2: 1,param3: 0, param4: 0, x_lat: -35.359467, y_long: 149.161697, z_alt: 99.800003}]
 
-alternately, at the command line (in three separate terminals):
-1$ cd catkin_ws; source devel/setup.bash; rosservice ??? "???basic_mode: '', custom_mode: 'AUTO' "???
-2$ cd catkin_ws; source devel/setup.bash; rosservice ??? arm ??? "???throttle???: true"???
+
+Alternately, at the command line (in three separate terminals):
+1$ cd catkin_ws; source devel/setup.bash; rosrun mavros mavsys mode -c auto
+2$ cd catkin_ws; source devel/setup.bash; rosrun mavros mavsafety arm
 3$ cd catkin_ws; source devel/setup.bash; rosrun mavros mavwp load "name_of_file_with_waypoints.txt"
 
 Now, with this, you just need to run:
 $ cd catkin_ws; source devel/setup.bash; rosrun soi_waypoint_work waypoint_node.py
-...and it will listen on a ROS topic (channel) called "/UAV1/waypoint_list" for waypoints of type ???.
+...and it will listen on a ROS topic (channel) called "/UAV1/waypoint_list" for waypoints of type "WaypointList"
 
-You can -test- this ROS node/script at the commadline quickly via a rostopic call:
-#string: $ cd catkin_ws; source devel/setup.bash; rostopic pub -1 /UAV1/teststring ???std_msgs/String??? ???"data: 'blah BLAH blah'"???
-$ cd catkin_ws; source devel/setup.bash; rostopic pub -1 /UAV1/waypoint_list ???geometry_msgs/Path??? "???: x: ? y:? z:?"???
+You can -test- this ROS node/script at the commadline quickly via a rostopic call, for example:
+
+#WaypointList: $ cd catkin_ws; source devel/setup.bash; rostopic pub -l /UAV1/waypoint_list mavros_msgs/WaypointList '[{frame: 3, command: 16, is_current: 0, autocontinue: 1,param2: 1,param3: 0, param4: 0, x_lat: -35.359467, y_long: 149.161697, z_alt: 99.800003}]'
 
 """
 
-class StringData(object):
+class WaypointData(object):
     def __init__(self):
         self.mystring = None #"" # unpacked
-        self.mystring_ros = String() # raw format
+        self.mystring_ros = WaypointList() # raw format
         self.lock = threading.Lock()
 
     def callback(self, data):
         self.lock.acquire()
         try: # this looks different depending on the datatype
-            self.mystring = data.data
+            self.mystring = data.waypoints
             self.mystring_ros = data
         finally:
             self.lock.release()
@@ -94,7 +83,7 @@ class StringData(object):
         self.lock.acquire()
         try:
             thedata = self.mystring_ros
-            self.mystring_ros = String()
+            self.mystring_ros = WaypointList()
         finally:
             self.lock.release()
         return thedata
@@ -102,24 +91,24 @@ class StringData(object):
 def waypoint_node():
 
     rospy.init_node('waypoint_node', anonymous=True)
-    string_in = StringData()
-    #waypoints_in = WaypointData()
-    rospy.Subscriber("/UAV1/teststring", String, string_in.callback)
-    #rospy.Subscriber("/UAV1/waypoint_list", soi_waypoint_work/LatLongWayptList, waypoints_in.callback)
+    #string_in = StringData()
+    waypoints_in = WaypointData()
+    #rospy.Subscriber("/UAV1/teststring", String, string_in.callback)
+    rospy.Subscriber("/UAV1/waypoint_list", WaypointList, waypoints_in.callback)
 
     print("Waiting for incoming ROS topic data...")
 
     while (1):
-        hold = string_in.received_data()
-        if hold is None:
-            pass
-        else: # we have new data
-            print("String received: %r" % hold)
-        #hold2 = waypoints_in.received_data()
-        #if hold2.data is None:
+        #hold = string_in.received_data()
+        #if hold is None:
         #    pass
         #else: # we have new data
-        #    print("Data2 received: %r" % hold2)
+        #    print("String received: %r" % hold)
+        hold2 = waypoints_in.received_data()
+        if hold2 is None:
+            pass
+        else: # we have new data
+            print("Data2 received: %r" % hold2)
 
     # spin() simply keeps python from exiting until this node is stopped
     rospy.spin()
