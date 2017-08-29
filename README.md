@@ -37,6 +37,7 @@ cd $HOME
 export PATH=$PATH:$HOME/jsbsim/src
 export PATH=$PATH:$HOME/ardupilot/Tools/autotest
 export PATH=/usr/lib/ccache:$PATH
+. ~/.bashrc
 ```
 Run the autopilot
 ```
