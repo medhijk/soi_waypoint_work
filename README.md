@@ -31,6 +31,14 @@ $ rostopic pub -l /UAV1/waypoint_list mavros_msgs/WaypointList '[{frame: 3, comm
 ###### You can close roscore now as well as the test command and first-script.sh ######
 
 Fourth, Run the autopilot & mavros in a new terminal
+If you have not added these lines to the end of your ”.bashrc” in the home directory during ardupilot installation, run these once now:
+```
+cd $HOME
+export PATH=$PATH:$HOME/jsbsim/src
+export PATH=$PATH:$HOME/ardupilot/Tools/autotest
+export PATH=/usr/lib/ccache:$PATH
+```
+Run the autopilot
 ```
 $ cd $HOME/catkin_ws/src/soi_waypoint_work/launch
 $ chmod +x daily-script.sh
