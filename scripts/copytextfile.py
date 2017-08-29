@@ -16,7 +16,7 @@ with open("topic_info.txt", "r") as f:
 new_list = [float(i) for i in words]
 
 
-final_list = [0, new_list[14], new_list[12], new_list[13], new_list[16], new_list[17], new_list[18], new_list[19], new_list[20], new_list[21], new_list[22], new_list[15]]
+#final_list = [0, new_list[14], new_list[12], new_list[13], new_list[16], new_list[17], new_list[18], new_list[19], new_list[20], new_list[21], new_list[22], new_list[15]]
 
 
 #print( ", ".join( str(e) for e in final_list ) )
