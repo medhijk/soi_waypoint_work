@@ -1,6 +1,6 @@
 # soi_waypoint_work
 
-The package has been tested to work under Ubuntu 14.04.
+This package has been tested to work under Ubuntu 14.04.
 
 Initial set up (follow this only after you have ardupilot installed. Instructions for setting up ardupilot with ROS can be found here: https://github.com/AS4SR/general_info/wiki/ArduPilot:-Instructions-to-set-up-and-run-an-autopilot-using-SITL-and-Gazebo-simulator 
 
