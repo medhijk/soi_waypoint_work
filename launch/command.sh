@@ -15,9 +15,8 @@ xterm -hold -e "sleep 3; rosrun mavros mavsafety arm"
 
 exit 0
 
-"""
-or
-load everything in the same terminal
-cd $HOME/ardupilot/Tools/autotest/ArduPlane-Missions
-xterm -hold -e "rosrun mavros mavwp load hst.txt; sleep 5; rosrun mavros mavsys mode -c auto; sleep 3; rosrun mavros mavsafety arm"
-"""
+
+#or
+#load everything in the same terminal
+#cd $HOME/ardupilot/Tools/autotest/ArduPlane-Missions
+#xterm -hold -e "rosrun mavros mavwp load hst.txt; sleep 5; rosrun mavros mavsys mode -c auto; sleep 3; rosrun mavros mavsafety arm"
