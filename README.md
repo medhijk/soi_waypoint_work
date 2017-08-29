@@ -30,7 +30,7 @@ $ rostopic pub -l /UAV1/waypoint_list mavros_msgs/WaypointList '[{frame: 3, comm
 
 ###### You can close roscore now as well as the test command and first-script.sh ######
 
-Fourth, Run the autopilot & mavros in a new terminal
+Fourth, Run the autopilot & mavros in a new terminal.
 If you have not added these lines to the end of your ”.bashrc” in the home directory during ardupilot installation, run these once now:
 ```
 cd $HOME
