@@ -34,7 +34,7 @@ z=new_list[11]
 autocontinue=new_list[4]
 #################################################
 
-missionlist = final_list
+#missionlist = final_list
 fh = open("hst.txt", "w")
 output='QGC WPL 110\n'
 #for cmd in missionlist:
