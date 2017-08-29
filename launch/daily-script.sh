@@ -40,18 +40,17 @@ xterm -hold -e "sleep 3; sim_vehicle.py --console --map --aircraft test" &
 cd $HOME/ardupilot/launch
 xterm -hold -e "sleep 20; roslaunch apm.launch" &
 
-"""
-# loading waypoints through ros service
-cd $HOME/ardupilot/Tools/autotest/ArduPlane-Missions
-xterm -hold -e "sleep 35; rosrun mavros mavwp load hst.txt" &
+## loading waypoints through ros service
+#cd $HOME/ardupilot/Tools/autotest/ArduPlane-Missions
+#xterm -hold -e "sleep 35; rosrun mavros mavwp load hst.txt" &
 
 
-# changing the mode in ardupilot through ros service
-xterm -hold -e "sleep 35; rosrun mavros mavsys mode -c auto" &
+## changing the mode in ardupilot through ros service
+#xterm -hold -e "sleep 35; rosrun mavros mavsys mode -c auto" &
 
 
-# changing the arming status through ros service
-xterm -hold -e "sleep 35; rosrun mavros mavsafety arm"
-"""
+## changing the arming status through ros service
+#xterm -hold -e "sleep 35; rosrun mavros mavsafety arm"
+
 
 exit 0
