@@ -20,7 +20,7 @@ $ roscore
 
 Second, in a new terminal, run subscriber node
 ```
-$ cd $HOME/catkin_ws/src/soi_waypoint_work/launch
+$ cd $HOME/catkin_ws/src/soi_waypoint_work/scripts
 $ chmod +x first-script.sh
 $ ./first-script.sh
 ```
@@ -43,14 +43,14 @@ export PATH=/usr/lib/ccache:$PATH
 ```
 Run the autopilot
 ```
-$ cd $HOME/catkin_ws/src/soi_waypoint_work/launch
+$ cd $HOME/catkin_ws/src/soi_waypoint_work/scripts
 $ chmod +x daily-script.sh
 $ ./daily-script.sh
 ```
 
 Fifth, Run the command script for autopilot after mavros has loaded
 ```
-$ cd $HOME/catkin_ws/src/soi_waypoint_work/launch
+$ cd $HOME/catkin_ws/src/soi_waypoint_work/scripts
 $ chmod +x command.sh
 $ ./command.sh
 ```
