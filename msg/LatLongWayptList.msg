@@ -1,1 +1,1 @@
-geographic_msgs/GeoPoint[] WaypointList
+geographic_msgs/GeoPoint[] geopoints
