@@ -101,7 +101,7 @@ class LatLongWayptListData(object):
         self.lock.acquire()
         try:
             thedata = self.myGeoPoint
-            self.myGeopoint = None
+            self.myGeoPoint = None
         finally:
             self.lock.release()
         return thedata
