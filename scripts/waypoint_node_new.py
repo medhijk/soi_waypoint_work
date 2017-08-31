@@ -98,7 +98,7 @@ class LatLongWayptListData(object):
         returns unpacked data that was received,
         NOT in its original ROS format
         """
-        thedata = None
+        self.thedata = None
         self.lock.acquire()
         try:
             thedata = self.myGeoPoint
