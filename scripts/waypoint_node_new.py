@@ -6,6 +6,7 @@ wp_load, see: https://github.com/mavlink/mavros/blob/master/mavros/scripts/mavwp
 do_mode, see: https://github.com/mavlink/mavros/blob/master/mavros/scripts/mavsys
 _arm, see: https://github.com/mavlink/mavros/blob/master/mavros/scripts/mavsafety
 """
+from __future__ import print_function
 import rospy
 import sys
 import mavros
@@ -15,6 +16,10 @@ import threading
 from mavros import mission as M
 from mavros_msgs.srv import SetMode
 from mavros import command
+from mavros_msgs.msg import State
+from geographic_msgs.msg import GeoPoint
+from soi_waypoint_work.msg import LatLongWayptList
+from mavros.utils import*
 
 # load waypoints
 #def get_wp_file_io(args):
@@ -25,9 +30,9 @@ def do_load(filename_str):
     """ filename_str is the file location (and filename) to open that has the waypoints
     we are also assuming that we are not preserving the home location """
 #def do_load(waypoint_list):
-#    """ waypoint_list is expected to be in a "list of Waypoint[(s)]" format
-#    (from mavros_msgs.msg import Waypoint)
-#    we are also assuming that we are not preserving the home location """
+    """ waypoint_list is expected to be in a "list of Waypoint[(s)]" format
+    (from mavros_msgs.msg import Waypoint)
+    we are also assuming that we are not preserving the home location """
 
     wps = []
     #wps_file = get_wp_file_io(args)
@@ -75,7 +80,7 @@ def _arm():
     print("Command result:", ret.result)
     return ret
 
-# defining the class
+#defining the class
 class LatLongWayptListData(object):
     def __init__(self):
         self.myGeoPoint = None #"" # unpacked
@@ -105,7 +110,7 @@ class LatLongWayptListData(object):
             self.myGeoPoint = None
         finally:
             self.lock.release()
-        print("Data2 received: %r" % thedata)
+        #print("Data2 received: %r" % thedata)
         return thedata
     
 
@@ -130,7 +135,7 @@ def waypoint_node_new():
 
     rospy.init_node('waypoint_node_new', anonymous=True)
     GeoPoint_in = LatLongWayptListData()
-    rospy.Subscriber("/UAV1/testGeoPoint", soi_waypoint_work/LatLongWayptList, GeoPoint_in.callback)
+    rospy.Subscriber("/UAV1/testGeoPoint", LatLongWayptList, GeoPoint_in.callback)
     #rospy.Subscriber("/UAV1/waypoint_list", soi_waypoint_work/LatLongWayptList, waypoints_in.callback)
 
     print("Waiting for incoming ROS topic data...")
