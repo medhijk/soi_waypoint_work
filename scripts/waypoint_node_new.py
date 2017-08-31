@@ -122,10 +122,10 @@ class LatLongWayptListData(object):
             self.lock.release()
         return thedata
     
-# defining waypoint_node
-def waypoint_node():
+# defining waypoint_node_new
+def waypoint_node_new():
 
-    rospy.init_node('waypoint_node', anonymous=True)
+    rospy.init_node('waypoint_node_new', anonymous=True)
     GeoPoint_in = LatLongWayptListData()
     rospy.Subscriber("/UAV1/testGeoPoint", soi_waypoint_work/LatLongWayptList, GeoPoint_in.callback)
     #rospy.Subscriber("/UAV1/waypoint_list", soi_waypoint_work/LatLongWayptList, waypoints_in.callback)
@@ -150,7 +150,7 @@ def waypoint_node():
 if __name__ == '__main__':
   
     try:
-        waypoint_node()
+        waypoint_node_new()
     #except rospy.shutdown(): #ROSError??? etc.:
     #    sys.exit()
     except:
