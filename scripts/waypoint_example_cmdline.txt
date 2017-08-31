@@ -1,0 +1,5 @@
+rostopic pub -l /UAV1/testGeoPoint soi_waypoint_work/LatLongWayptList "geopoints:
+- latitude: 149.161697
+  longitude: -35.359467
+  altitude: 99.800003"
+

@@ -1,13 +1,23 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import rospy
 import sys
 from std_msgs.msg import String
 from mavros_msgs.msg import WaypointList
+from mavros_msgs.srv import SetMode, StreamRate, StreamRateRequest
+from mavros_msgs.msg import State
+
 
 #def callback(data):
 #    rospy.loginfo(rospy.get_caller_id() + "heard %s", data.data)
 
 import threading
+import argparse
+import mavros
+from mavros.utils import *
+from geometry_msgs.msg import PolygonStamped, Point32
+from mavros import command
+
 
 """
 This is the automated version of running the following commands at the command line
@@ -109,6 +119,83 @@ def waypoint_node():
             pass
         else: # we have new data
             print("Data2 received: %r" % hold2)
+
+
+# Loading the waypoints
+def get_wp_file_io(args):
+    return M.QGroundControlWP()
+
+def do_load(args):
+    wps = []
+    wps_file = get_wp_file_io(args)
+    with args.file:
+        wps = [w for w in wps_file.read(args.file)]
+
+    def _load_call(waypoint_list):
+        try:
+            ret = M.push(waypoints=waypoint_list)
+        except rospy.ServiceException as ex:
+            fault(ex)
+
+        if not ret.success:
+            fault("Request failed. Check mavros logs")
+
+#print_if(args.verbose, "Waypoints transfered:", ret.wp_transfered)
+
+
+# Setting the mode of the autopilot
+def state_cb(state):
+        print_if(args.verbose, "Current mode:", state.mode)
+        if state.mode == custom_mode:
+            print("Mode changed.")
+            done_evt.set()
+def do_mode(args):
+    base_mode = 0
+    custom_mode = ''
+
+    if args.custom_mode is not None:
+        custom_mode = args.custom_mode.upper()
+    if args.base_mode is not None:
+        base_mode = args.base_mode
+
+    done_evt = threading.Event()
+    def state_cb(state):
+        print_if(args.verbose, "Current mode:", state.mode)
+        if state.mode == custom_mode:
+            print("Mode changed.")
+            done_evt.set()
+
+
+    try:
+        set_mode = rospy.ServiceProxy(mavros.get_topic('set_mode'), SetMode)
+        ret = set_mode(base_mode=base_mode, custom_mode=custom_mode)
+    except rospy.ServiceException as ex:
+        fault(ex)
+
+    if not ret.mode_sent:
+        fault("Request failed. Check mavros logs")
+
+    if not done_evt.wait(5):
+        fault("Timed out!")
+
+# Setting the arm state
+
+def _arm(args, state):
+    try:
+        ret = command.arming(value=state)
+    except rospy.ServiceException as ex:
+        fault(ex)
+
+    if not ret.success:
+        fault("Request failed. Check mavros logs")
+
+    print_if(args.verbose, "Command result:", ret.result)
+    return ret
+
+
+
+
+
 
     # spin() simply keeps python from exiting until this node is stopped
     rospy.spin()

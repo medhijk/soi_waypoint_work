@@ -1,19 +1,29 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import rospy
 import sys
 from std_msgs.msg import String
 from mavros_msgs.msg import WaypointList
+from mavros_msgs.srv import SetMode, StreamRate, StreamRateRequest
+from mavros_msgs.msg import State
+
 
 #def callback(data):
 #    rospy.loginfo(rospy.get_caller_id() + "heard %s", data.data)
 
 import threading
+import argparse
+import mavros
+from mavros.utils import *
+from geometry_msgs.msg import PolygonStamped, Point32
+from mavros import command
+
 
 """
 This is the automated version of running the following commands at the command line
 and/or inside the MAVLink autopilot terminal, with MAVLink + roscore + mavros already running:
 
-<PUT IN COMMANDS FOR STARTING THIS HERE> # include links to help docs / tutorials / wiki instructions also!!
+Installation instructions to set up mavros running with ardupilot can be found on this link: https://github.com/AS4SR/general_info/wiki/ArduPilot:-Instructions-to-set-up-and-run-an-autopilot-using-SITL-and-Gazebo-simulator
 
 MAVLink autopilot (normal operations):
 > mode AUTO
@@ -23,34 +33,22 @@ MAVLink autopilot (normal operations):
 Example waypoint files are listed under: ~/ardupilot/Tools/autotest/ArudPlane-Missions/
 --> the ones we normally use are formatted like "CMAC-toff-loop.txt"
 --> these are in lat-long-alt coordinates (with some additional information)
---> common writeout is as follows:
-    # as [long,lat,alt]: (with set orientation)
-    waypts = [[-35.362938, 149.165085, 584.409973], [-35.361164, 149.163986, 28.110001], [-35.359467, 149.161697, 99.800003]]
-    opened_file.open(filename, 'w')
-    opened_file.write("QGC WPL 110")
-    firstwaypt = 0; counter = 0
-    for pt in waypts:
-        [longitude,latitude,altitude] = pt
-        if firstwaypt == 0:                       # with constant unchanging orientation
-            opened_file.write("%d    1   0   22  15.000000   0.000000    0.000000    0.000000    %d  %d  %d  1\n" % (counter, longitude, latitude, altitude))
-            firstwaypt = 1
-        else:                                # with constant unchanging orientation
-            opened_file.write("%d    0   3   22  15.000000   0.000000    0.000000    0.000000    %d  %d  %d  1\n" % (counter, longitude, latitude, altitude))
-        counter += 1
-    opened_file.close()
+    
+    WaypointList = [{frame: 3, command: 16, is_current: 0, autocontinue: 1,param2: 1,param3: 0, param4: 0, x_lat: -35.359467, y_long: 149.161697, z_alt: 99.800003}]
 
-alternately, at the command line (in three separate terminals):
-1$ cd catkin_ws; source devel/setup.bash; rosservice ??? "???basic_mode: '', custom_mode: 'AUTO' "???
-2$ cd catkin_ws; source devel/setup.bash; rosservice ??? arm ??? "???throttle???: true"???
+
+Alternately, at the command line (in three separate terminals):
+1$ cd catkin_ws; source devel/setup.bash; rosrun mavros mavsys mode -c auto
+2$ cd catkin_ws; source devel/setup.bash; rosrun mavros mavsafety arm
 3$ cd catkin_ws; source devel/setup.bash; rosrun mavros mavwp load "name_of_file_with_waypoints.txt"
 
 Now, with this, you just need to run:
 $ cd catkin_ws; source devel/setup.bash; rosrun soi_waypoint_work waypoint_node.py
-...and it will listen on a ROS topic (channel) called "/UAV1/waypoint_list" for waypoints of type ???.
+...and it will listen on a ROS topic (channel) called "/UAV1/waypoint_list" for waypoints of type "WaypointList"
 
-You can -test- this ROS node/script at the commadline quickly via a rostopic call:
-#string: $ cd catkin_ws; source devel/setup.bash; rostopic pub -1 /UAV1/teststring ???std_msgs/String??? ???"data: 'blah BLAH blah'"???
-$ cd catkin_ws; source devel/setup.bash; rostopic pub -1 /UAV1/waypoint_list ???geometry_msgs/Path??? "???: x: ? y:? z:?"???
+You can -test- this ROS node/script at the commadline quickly via a rostopic call, for example:
+
+#WaypointList: $ cd catkin_ws; source devel/setup.bash; rostopic pub -l /UAV1/waypoint_list mavros_msgs/WaypointList '[{frame: 3, command: 16, is_current: 0, autocontinue: 1,param2: 1,param3: 0, param4: 0, x_lat: -35.359467, y_long: 149.161697, z_alt: 99.800003}]'
 
 """
 
@@ -121,6 +119,80 @@ def waypoint_node():
             pass
         else: # we have new data
             print("Data2 received: %r" % hold2)
+
+
+# Loading the waypoints
+def do_load(args):
+    wps = []
+    wps_file = get_wp_file_io(args)
+    with args.file:
+        wps = [w for w in wps_file.read(args.file)]
+
+    def _load_call(waypoint_list):
+        try:
+            ret = M.push(waypoints=waypoint_list)
+        except rospy.ServiceException as ex:
+            fault(ex)
+
+        if not ret.success:
+            fault("Request failed. Check mavros logs")
+
+#print_if(args.verbose, "Waypoints transfered:", ret.wp_transfered)
+
+
+# Setting the mode of the autopilot
+def state_cb(state):
+        print_if(args.verbose, "Current mode:", state.mode)
+        if state.mode == custom_mode:
+            print("Mode changed.")
+            done_evt.set()
+def do_mode(args):
+    base_mode = 0
+    custom_mode = ''
+
+    if args.custom_mode is not None:
+        custom_mode = args.custom_mode.upper()
+    if args.base_mode is not None:
+        base_mode = args.base_mode
+
+    done_evt = threading.Event()
+    def state_cb(state):
+        print_if(args.verbose, "Current mode:", state.mode)
+        if state.mode == custom_mode:
+            print("Mode changed.")
+            done_evt.set()
+
+
+    try:
+        set_mode = rospy.ServiceProxy(mavros.get_topic('set_mode'), SetMode)
+        ret = set_mode(base_mode=base_mode, custom_mode=custom_mode)
+    except rospy.ServiceException as ex:
+        fault(ex)
+
+    if not ret.mode_sent:
+        fault("Request failed. Check mavros logs")
+
+    if not done_evt.wait(5):
+        fault("Timed out!")
+
+# Setting the arm state
+
+def _arm(args, state):
+    try:
+        ret = command.arming(value=state)
+    except rospy.ServiceException as ex:
+        fault(ex)
+
+    if not ret.success:
+        fault("Request failed. Check mavros logs")
+
+    print_if(args.verbose, "Command result:", ret.result)
+    return ret
+
+
+
+
+
 
     # spin() simply keeps python from exiting until this node is stopped
     rospy.spin()
