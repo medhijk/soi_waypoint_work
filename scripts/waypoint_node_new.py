@@ -98,12 +98,12 @@ class LatLongWayptListData(object):
         returns unpacked data that was received,
         NOT in its original ROS format
         """
+        thedata = None
         self.lock.acquire()
         try:
             thedata = self.myGeoPoint
             self.myGeoPoint = None
         finally:
-            thedata = None
             self.lock.release()
         print("Data2 received: %r" % thedata)
         return thedata
