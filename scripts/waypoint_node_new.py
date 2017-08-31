@@ -103,8 +103,11 @@ class LatLongWayptListData(object):
             thedata = self.myGeoPoint
             self.myGeoPoint = None
         finally:
+            thedata = None
             self.lock.release()
+        print("Data2 received: %r" % thedata)
         return thedata
+    
 
     def received_rawdata(self):
         """
