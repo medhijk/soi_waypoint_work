@@ -1,4 +1,9 @@
 # soi_waypoint_work
+NOTE: This is currently a work in development. At present, the arduplane is set up to follow only a first set of waypoints in a mission.
+
+TODO:
+* cleanly handle multiple sets of waypoints received (second set, third set, fourth set, ...)
+* streamlining of code
 
 This package has been tested to work under Ubuntu 14.04.
 
