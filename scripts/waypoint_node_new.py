@@ -76,17 +76,17 @@ def _arm():
     return ret
 
 # defining the class
-class WaypointData(object):
+class LatLongWayptListData(object):
     def __init__(self):
-        self.waypoint = None #"" # unpacked
-        self.waypoint_ros = String() # raw format
+        self.myGeoPoint = None #"" # unpacked
+        self.myGeoPoint_ros = LatLongWayptList() # raw format
         self.lock = threading.Lock()
 
     def callback(self, data):
         self.lock.acquire()
         try: # this looks different depending on the datatype
-            self.waypoint = data.LatLongWayptList # data is expected to be in LatLongWayptList format
-            self.waypoint_ros = data
+            self.myGeoPoint = data.geopoints # data is expected to be in LatLongWayptList format
+            self.myGeoPoint_ros = data
         finally:
             self.lock.release()
 
@@ -100,8 +100,8 @@ class WaypointData(object):
         """
         self.lock.acquire()
         try:
-            thedata = self.waypoint
-            self.waypoint = None
+            thedata = self.myGeoPoint
+            self.myGeopoint = None
         finally:
             self.lock.release()
         return thedata
@@ -116,12 +116,44 @@ class WaypointData(object):
         """
         self.lock.acquire()
         try:
-            thedata = self.waypoint_ros
-            self.waypoint_ros = String()
+            thedata = self.myGeoPoint_ros
+            self.myGeoPoint_ros = LatLongWayptList()
         finally:
             self.lock.release()
         return thedata
     
+# defining waypoint_node
+def waypoint_node():
+
+    rospy.init_node('waypoint_node', anonymous=True)
+    GeoPoint_in = LatLongWayptListData()
+    rospy.Subscriber("/UAV1/testGeoPoint", soi_waypoint_work/LatLongWayptList, GeoPoint_in.callback)
+    #rospy.Subscriber("/UAV1/waypoint_list", soi_waypoint_work/LatLongWayptList, waypoints_in.callback)
+
+    print("Waiting for incoming ROS topic data...")
+
+    while (1):
+        #hold = string_in.received_data()
+        #if hold is None:
+        #    pass
+        #else: # we have new data
+        #    print("String received: %r" % hold)
+        hold2 = GeoPoint_in.received_data()
+        if hold2.data is None:
+            pass
+        else: # we have new data
+            print("Data2 received: %r" % hold2)
         
-        
-            
+    # spin() simply keeps python from exiting until this node is stopped
+    rospy.spin()
+
+if __name__ == '__main__':
+  
+    try:
+        waypoint_node()
+    #except rospy.shutdown(): #ROSError??? etc.:
+    #    sys.exit()
+    except:
+        pass
+
+    sys.exit(0)            
