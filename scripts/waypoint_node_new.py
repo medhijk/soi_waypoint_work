@@ -139,10 +139,10 @@ def waypoint_node_new():
         #else: # we have new data
         #    print("String received: %r" % hold)
         hold2 = GeoPoint_in.received_data()
-        if hold2.geopoints is None:
+        if hold2 is None:
             pass
         else: # we have new data
-            print("Data2 received: %f" % hold2)
+            print("Data2 received: %r" % hold2)
         
     # spin() simply keeps python from exiting until this node is stopped
     rospy.spin()
