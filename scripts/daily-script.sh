@@ -28,8 +28,8 @@
 #xterm -hold -e "export PATH=$PATH:$HOME/jsbsim/src; export PATH=$PATH:$HOME/ardupilot/Tools/autotest; export PATH=/usr/lib/ccache:$PATH; . ~/.bashrc" &
 
 # copying ROS topic_info into proper WaypointList format
-cd $HOME/ardupilot/Tools/autotest/ArduPlane-Missions
-xterm -hold -e "python copytextfile.py" &
+#cd $HOME/ardupilot/Tools/autotest/ArduPlane-Missions
+#xterm -hold -e "python copytextfile.py" &
 
 # launching ardupilot with SITL
 cd $HOME/ardupilot/ArduPlane
