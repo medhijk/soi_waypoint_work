@@ -316,7 +316,11 @@ def waypoint_node_new():
             args.func(args) # the filenamestr will forcibly call the do_load() function
 
             do_mode() # has to be put into AUTO mode post-waypoint send (or will reset to RTL mode)
-            _arm()
+
+            if hold_alt < 0.3:
+                _arm()   # arm only when on ground
+            else:
+                pass
             
             
         #break # comment this out for loop (not single-run)
