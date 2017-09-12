@@ -280,15 +280,19 @@ def waypoint_node_new():
                 fh.write("1\t0\t3\t22\t15.000000\t0.000000\t0.000000\t0.000000\t-35.361164\t149.163986\t28.110001\t1\n")
                 counter = 2
                 #firstwaypt = 0
-            else: # we're already in the air, just get the next waypoint, don't print anything extra to file
-                counter = 0
+            else: # We have to specify a dummy takeoff command since the auto mode protocol always requires a takeoff command. However, the autopilot will ignore this takeoff command since it is already in the air and move to the next waypoint.
+                #takeoff 00 position
+                fh.write("0\t1\t0\t16\t0.000000\t0.000000\t0.000000\t0.000000\t-35.362938\t149.165085\t584.409973\t1\n")
+                #takeoff 01 position
+                fh.write("1\t0\t3\t22\t15.000000\t0.000000\t0.000000\t0.000000\t-35.361164\t149.163986\t28.110001\t1\n")
+                counter = 2
                 #firstwaypt = 1
             
             for pt in hold2:
                 longitude = pt.longitude
                 latitude = pt.latitude
                 altitude = pt.altitude
-                fh.write("%d\t0\t3\t22\t15.000000\t0.000000\t0.000000\t0.000000\t%f\t%f\t%f\t1\n" % (counter, longitude, latitude, altitude))
+                fh.write("%d\t0\t3\t16\t15.000000\t0.000000\t0.000000\t0.000000\t%f\t%f\t%f\t1\n" % (counter, longitude, latitude, altitude))
                 counter += 1
             fh.close()
 
