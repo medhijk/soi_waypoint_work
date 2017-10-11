@@ -1,5 +1,6 @@
 # soi_waypoint_work
-NOTE: This is currently a work in development. At present, the arduplane is set up to follow only a first set of waypoints in a mission.
+NOTE: This is currently a work in development.
+UPDATE: Support for following multiple sets of waypoint available now
 
 TODO:
 * cleanly handle multiple sets of waypoints received (second set, third set, fourth set, ...)
