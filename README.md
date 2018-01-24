@@ -1,7 +1,9 @@
 # soi_waypoint_work
 NOTE: This is currently a work in development.
 
-UPDATE: Support for following multiple sets of waypoint available now
+UPDATE: This package has been tested to work under Ubuntu 16.04 now.
+
+UPDATE: Support for following multiple sets of waypoint available now.
 
 TODO:
 * cleanly handle multiple sets of waypoints received (second set, third set, fourth set, ...)
