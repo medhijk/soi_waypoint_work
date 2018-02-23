@@ -63,4 +63,9 @@ or, another way of publishing a waypoint msg
 ```
 rostopic pub -l /UAV1/testGeoPoint soi_waypoint_work/LatLongWayptList "geopoints: [latitude: 149.161697, longitude: -35.359267, altitude: 99.800003]"
 ```
+If you want to send multiple waypoints together, here's an example below:
+```
+rostopic pub -l /UAV1/testGeoPoint soi_waypoint_work/LatLongWayptList "geopoints: [{latitude: 149.161697, longitude: -35.359267, altitude: 99.800003}, {latitude: 149.161597, longitude: -35.359367, altitude: 99.800003}, {latitude: 149.161527, longitude: -35.359467, altitude: 99.800003}]"
+```
+
 ###### That's it!!!! The plane should follow the waypoint now!!!! ######
