@@ -59,4 +59,8 @@ rostopic pub -l /UAV1/testGeoPoint soi_waypoint_work/LatLongWayptList "geopoints
   longitude: -35.359467
   altitude: 99.800003"
 ```
+or, another way of publishing a waypoint msg
+```
+rostopic pub -l /UAV1/testGeoPoint soi_waypoint_work/LatLongWayptList "geopoints: [latitude: 149.161697, longitude: -35.359267, altitude: 99.800003]"
+```
 ###### That's it!!!! The plane should follow the waypoint now!!!! ######
